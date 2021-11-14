@@ -1,0 +1,152 @@
+<?php require_once 'template/header.phtml';?>
+<script>
+    let dateTime   = 0;
+    let userID     = 0;
+    let postID     = 0;
+    let replyID    = 0;
+    const topicID  = "<?php echo $topic_id = implode($_GET);?>";
+    const token    = "<?php echo $_SESSION['ajaxToken'];?>";
+
+    posts();
+    function header(node) {
+        para = document.createElement('h1');
+        para.appendChild(node);
+        element = document.getElementById('display');
+        element.appendChild(para);
+    }
+    function posts() {
+        fetch('Models/getPosts.php?q=' + token.valueOf() + "/" + topicID).then(function(response) {
+            return response.text();
+        }).then(function(data) {
+            const myObj = JSON.parse(data);
+            myFunction(myObj);
+            getComment();
+        }).catch(function(error) {
+            console.log('Error: ' + error);
+        });
+    }
+        function myFunction(item) {
+            postID = item.id;
+            let node = document.createTextNode(item.header);
+            header(node);
+            node = document.createTextNode(item.content);
+            post(node);
+            userID = item.userId;
+            node = document.createTextNode(item.userName);
+            linkUser(node);
+            dateTime = item.topic_date;
+            node = document.createTextNode(item.date);
+            post(node);
+        }
+        function post(node) {
+            para = document.createElement('tr');
+            para.appendChild(node);
+            element = document.getElementById('display');
+            element.appendChild(para);
+        }
+        function linkUser(node) {
+            let para = document.createElement('tr');
+            para.appendChild(node);
+            element = document.getElementById("display");
+            let a = document.createElement('a');
+            a.appendChild(para);
+            a.href = "/profile.php?user_id=" + userID;
+            element.appendChild(a);
+        }
+    function getComment() {
+        fetch('Models/getComment.php?q=' + token.valueOf() + "/" + postID + "/" + dateTime).then(function (response) {
+            return response.text();
+        }).then(function (data) {
+            const myArr = JSON.parse(data);
+            myArr.forEach(comments);
+        }).catch(function (error) {
+            console.log('Error: ' + error);
+        });
+    }
+    function comments(item) {
+        replyID = item.id;
+        let node = document.createTextNode(item.content);
+        comment(node);
+        userID = item.userId;
+        node = document.createTextNode(item.userName);
+        commentLinkUser(node);
+        dateTime = item.reply_date;
+        node = document.createTextNode(item.date);
+        comment(node);
+    }
+    function commentLinkUser(node) {
+        para = document.createElement('tr');
+        para.appendChild(node);
+        element = document.getElementById("replies");
+        var a = document.createElement('a');
+        a.appendChild(para);
+        a.href = "/profile.php?user_id=" + userID;
+        element.appendChild(a);
+    }
+    function comment(node) {
+        para = document.createElement('tr');
+        para.appendChild(node);
+        element = document.getElementById('replies');
+        element.appendChild(para);
+    }
+    <?php if(isset($_SESSION['user_name'])){?>
+    function send(event) {
+        const content = {
+            token: token,
+            postId: postID,
+            comment: document.getElementById("comment").value
+        };
+        event.preventDefault();
+        fetch('Models/sendComment.php', {
+            method: 'POST',
+            headers: {
+                'CONTENT-TYPE': 'application/json'
+            },
+            body: JSON.stringify(content)
+        }).then(function(response) {
+            return response.text();
+        }).then(function(data) {
+            console.log(data);
+        }).catch(function(error) {
+            console.log('Error: ' + error);
+        });
+    }
+    <?php }?>
+    function load() {
+        fetch('Models/getComment.php?q=' + token.valueOf() + "/" + "more" + "/" + postID + "/" + replyID).then(function (response) {
+            return response.text();
+        }).then(function (data) {
+            const myArr = JSON.parse(data);
+            myArr.forEach(comments);
+        }).catch(function (error) {
+            console.log('Error: ' + error);
+        });
+    }
+</script>
+<?php if(isset($_SESSION['user_name']))
+{ ?>
+    <button type="button" class="collapsible">Comment</button>
+    <div class="content">
+        <p></p>
+        <div class="form-group">
+            <label>comment:</label>
+            <textarea class="form-control" type="text" id="comment" placeholder="Enter your post here..."></textarea>
+        </div>
+        <input type="submit" class="btn btn-primary btn-block" value="submit" id="submit">
+        <script>
+           document.getElementById('submit').addEventListener('click', send, false);
+        </script>
+    </div>
+<?php }?>
+    <div id="display">
+
+    </div>
+<hr>
+<div id="replies"">
+
+</div>
+    <button id="Load" class="btn btn-primary btn-block">Load More</button>
+<script>
+    document.getElementById('Load').addEventListener('click', load, false);
+</script>
+<?php require_once 'template/footer.phtml';?>

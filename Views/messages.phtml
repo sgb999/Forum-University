@@ -1,0 +1,52 @@
+<?php require_once 'template/header.phtml';?>
+<script>
+    let messagePosition = 0;
+    messages()
+    setInterval(messages, 1000)
+    function messages() {
+        fetch('Models/getMessages.php?q=' + <?php echo $con_id;?> + " " + messagePosition).then(function (response) {
+            return response.text();
+        }).then(function (data) {
+            const myArr = JSON.parse(data);
+            if(Array.isArray(myArr)) {
+                myArr.forEach(myFunction);
+            }
+        }).catch(function (error) {
+            console.log('Error: ' + error);
+        });
+    }
+    function myFunction(item) {
+            let node = document.createTextNode(item.text);
+            showMessage(node)
+            node = document.createTextNode(item.timesent);
+            showMessage(node)
+            node = document.createTextNode(item.userName);
+            showMessage(node)
+            messagePosition = item.id;
+        }
+        function showMessage(node) {
+            let para = document.createElement('p');
+            para.appendChild(node);
+            let element = document.getElementById("display")
+            element.appendChild(para);
+        }
+        function onclickHandler(event) {
+            fetch('Models/sendMessage.php?q=' + document.getElementById("sendMessage").value + "ʌ" + <?php echo $_SESSION['user_id'];?> + "ʌ" + <?php echo $con_id;?>).then(function (response) {
+                return response.text();
+            }).then(function () {
+            }).catch(function (error) {
+                console.log('Error: ' + error);
+            });
+        }
+</script>
+    <div id="display">
+
+    </div>
+    <div class="form-group">
+        <textarea class="form-control" id="sendMessage" rows="3"></textarea>
+    </div>
+<button id="sendButton" class="btn btn-primary btn-block">Send</button>
+    <script>
+        document.getElementById('sendButton').addEventListener('click', onclickHandler, false);
+    </script>
+<?php require_once 'template/footer.phtml';?>

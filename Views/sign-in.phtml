@@ -1,0 +1,50 @@
+<?php require('template/header.phtml');?>
+<script>
+    function signIn(event) {
+        const content = {
+            username: document.getElementById("user-name").value,
+            userPass: document.getElementById("user-pass").value
+        };
+        event.preventDefault();
+        fetch('Scripts/sign-in.php', {
+            method: 'POST',
+            headers: {
+                'CONTENT-TYPE': 'application/json'
+            },
+            body: JSON.stringify(content)
+        }).then(function(response) {
+            return response.text();
+        }).then(function(data) {
+            if(data === "incorrect"){
+                document.getElementById("sign-in-error").classList.remove("hidden");
+            }
+            else if (data === "correct"){
+                document.getElementById("sign-in-error").classList.add("hidden");
+                document.getElementById("sign-in-success").classList.remove("hidden");
+                window.location.replace("/");
+            }
+        }).catch(function(error) {
+            console.log('Error: ' + error);
+        });
+    }
+</script>
+    <h3 id ="sign-in-error" class="hidden">incorrect username or password</h3>
+    <h3 id ="sign-in-success" class="hidden">incorrect username or password</h3>
+<form>
+    <div>
+        <label>Username:</label>
+    <input required="required" id="user-name" class="form-control" type="text" name="user_name" placeholder="user name" value="">
+    </div>
+    <div>
+        <label>Password:</label>
+    <input required="required" id="user-pass" class="form-control" type="password" name="user_pass" placeholder="password" value="">
+    </div>
+    <p></p>
+    <div>
+        <input id ="submit" type="submit" class="btn btn-primary btn-block" value="submit" name="submit">
+    </div>
+</form>
+    <script>
+        document.getElementById('submit').addEventListener('click', signIn, false);
+    </script>
+<?php require('template/footer.phtml');?>

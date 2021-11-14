@@ -1,0 +1,130 @@
+<?php require_once 'template/header.phtml'; ?>
+<script>
+    var dateTime;
+    var topicID;
+    var catID = "<?php echo $cat_id=implode($_GET);?>";
+    var space = " ";
+    var token = "<?php echo $_SESSION['ajaxToken']?>"
+    topics();
+    function topics() {
+        fetch('Models/getTopics.php?q=' + "initial" + "/" + token.valueOf() + "/" + catID).then(function (response) {
+            return response.text();
+        }).then(function (data) {
+            const myArr = JSON.parse(data);
+            myArr.forEach(myFunction);
+        }).catch(function (error) {
+            console.log('Error: ' + error);
+        });
+    }
+    function myFunction(item) {
+        topicID = item.id;
+        var node = document.createTextNode(item.header);
+        showTitle(node);
+        node = document.createTextNode(item.name);
+        topic(node);
+        node = document.createTextNode(item.userName);
+        topic(node);
+        dateTime = item.date;
+        node = document.createTextNode(item.date);
+        topic(node);
+        node = document.createTextNode(space);
+        spaceOut(node);
+        line();
+    }
+    function showTitle(node) {
+        para = document.createElement('h3');
+        para.appendChild(node);
+        element = document.getElementById('display');
+        var a = document.createElement('a');
+        a.appendChild(para);
+        a.href = "/posts.php?postId=" + topicID;
+        element.appendChild(a);
+    }
+    function topic(node) {
+        let para = document.createElement('tr');
+        para.appendChild(node);
+        let element = document.getElementById('display');
+        element.appendChild(para);
+    }
+    function line() {
+        para = document.createElement('hr');
+        let element = document.getElementById('display');
+        element.appendChild(para);
+    }
+    function spaceOut(node) {
+        let para = document.createElement('p');
+        para.appendChild(node);
+        let element = document.getElementById("display")
+        element.appendChild(para);
+    }
+    function load(event) {
+        fetch('Models/getTopics.php?q=' + "more" + "/" + token.valueOf() + "/" + catID + "/" + dateTime).then(function (response) {
+            return response.text();
+        }).then(function (data) {
+            const myObj = JSON.parse(data);
+            myObj.forEach(myFunction);
+        }).catch(function (error) {
+            console.log('Error: ' + error);
+        });
+    }
+    <?php
+    if(isset($_SESSION['user_name']))
+    {
+    ?>
+    function send(event) {
+        const content = {
+            token: token,
+            catId: catID,
+            header: document.getElementById("topic").value,
+            content: document.getElementById("post").value
+        };
+        event.preventDefault();
+        fetch('Models/post.php', {
+            method: 'POST',
+            headers: {
+                'CONTENT-TYPE': 'application/json'
+            },
+            body: JSON.stringify(content)
+        }).then(function(response) {
+            return response.text();
+        }).then(function(data) {
+            console.log(data);
+        }).catch(function(error) {
+            console.log('Error: ' + error);
+        });
+    }
+    function redirect() {
+        if(document.getElementById("topic").value !== '' ||  document.getElementById("post").value !== '') {
+            send();
+            window.location.replace("/get_topic.php?cat_id=" + catID);
+        }
+    }
+    <?php }?>
+</script><?php if(isset($_SESSION['user_name']))
+    { ?>
+    <button type="button" class="collapsible">Add a topic</button>
+    <div class="content">
+        <div class="form-group">
+            <p></p>
+            <label>Topic Title:</label>
+            <textarea class="form-control" type="text" id="topic" placeholder="Enter your topic here..."></textarea>
+        </div>
+        <div class="form-group">
+            <label>Post:</label>
+            <textarea class="form-control" type="text" id="post" placeholder="Enter your post here..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" value="submit" id="submit">submit</button>
+        <script>
+            document.getElementById('submit').addEventListener('click', send, false);
+        </script>
+    </div>
+        <?php }?>
+<p></p>
+    <div id="display">
+
+    </div>
+    <button id="Load" class="btn btn-primary btn-block">Load More</button>
+<script>
+    document.getElementById('Load').addEventListener('click', load, false);
+</script>
+<?php require_once 'template/footer.phtml'; ?>

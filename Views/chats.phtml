@@ -1,0 +1,63 @@
+<?php require_once 'template/header.phtml';?>
+<script>
+    var chatPosition = 0
+    var conID = 0;
+    user();
+    function user() {
+        fetch('Models/getChats.php?q=' + <?php echo $_SESSION['user_id'];?> + "/" + chatPosition.valueOf()).then(function (response) {
+            return response.text();
+        }).then(function (data) {
+            const myArr = JSON.parse(data);
+            console.log(myArr);
+            myArr.forEach(numbers);
+        }).catch(function (error) {
+            console.log('Error: ' + error);
+        });
+    }
+    function users(id, con_ID) {
+        fetch('Models/getUsers.php?q=' + id).then(function (response) {
+            return response.text();
+        }).then(function (data) {
+            conID = con_ID
+            const myArr = JSON.parse(data);
+            console.log(myArr);
+            myArr.forEach(people);
+        }).catch(function (error) {
+            console.log('Error: ' + error);
+        });
+    }
+    function people(item) {
+        let node = null;
+        node = document.createTextNode(item.userName);
+        showMessage(node);
+    }
+    function numbers(item) {
+        var node;
+        node = item.userID;
+        var node2;
+        node2 = item.id;
+        users(node, node2);
+        
+    }
+
+    function showMessage(node) {
+
+        para = document.createElement('p');
+        para.appendChild(node);
+        element = document.getElementById("display")
+        element.appendChild(para);// Create anchor element.
+        var a = document.createElement('a');
+        // Create the text node for anchor element.
+
+        // Append the text node to anchor element.
+        a.appendChild(para);
+        // Set the href property.
+        a.href = "/message.php?con_id=" + conID;
+        // Append the anchor element to the body.
+        element.appendChild(a);
+    }
+</script>
+<div id="display">
+
+</div>
+<?php require_once 'template/footer.phtml';?>

@@ -1,0 +1,77 @@
+<?php require('template/header.phtml')?>
+<script>
+
+    function signUp(event) {
+        const content = {
+            firstName: document.getElementById("first-name").value,
+            lastName: document.getElementById("last-name").value,
+            userName: document.getElementById("user-name").value,
+            email: document.getElementById("email").value,
+            pass: document.getElementById("password").value,
+        };
+        event.preventDefault();
+        console.log(content.pass.length);
+        if(content.pass.value === content.pass.value && content.pass.length >= 8) {
+            fetch('Scripts/sign-up.php', {
+                method: 'POST',
+                headers: {
+                    'CONTENT-TYPE': 'application/json'
+                },
+                body: JSON.stringify(content)
+            }).then(function(response) {
+                return response.text();
+            }).then(function(data) {
+                console.log(data);
+                if (data === "incorrect") {
+                    document.getElementById("sign-in-error").classList.remove("hidden");
+                } else if (data === "registered") {
+                    //document.getElementById("sign-up-error").classList.add("hidden");
+                    //document.getElementById("sign-up-success").classList.remove("hidden");
+                   // window.location.replace("/");
+                }
+            }).catch(function(error) {
+                console.log('Error: ' + error);
+            });
+        }
+        else if(content.pass.value !== content.pass.value){
+            console.log("passwords do not match");
+        }
+        else if(content.pass.length < 8){
+            console.log("password is not 8 characters long");
+        }
+    }
+</script>
+    <form>
+        <div class="form-group">
+            <label>First Name:</label>
+            <input required="required" id="first-name" class="form-control" type="text" placeholder="John" value="">
+        </div>
+        <div class="form-group">
+            <label>Last Name:</label>
+            <input required="required" id="last-name" class="form-control" type="text" placeholder="Smith" value="">
+        </div>
+        <div class="form-group">
+            <label>Username:</label>
+            <input required="required" id="user-name" class="form-control" type="text" placeholder="username" value="">
+        </div>
+        <div class="form-group">
+            <label>Password:</label>
+            <input required="required" id="password" class="form-control" type="password" placeholder="password must be 8 characters long" value="">
+        </div>
+        <div class="form-group">
+            <label>Password again:</label>
+            <input required="required" id="password-repeat" class="form-control" type="password" placeholder="Must match password" value="">
+        </div>
+        <div class="form-group">
+            <label>E-mail:</label>
+            <input required="required" id="email" class="form-control" type="email" placeholder="example: E-Maill@address.com" value="">
+        </div>
+        <div>
+            <p></p>
+            <input id="submit" type="submit" class="btn btn-primary btn-block" value="submit" name="submit">
+        </div>
+    </form>
+<script>
+    document.getElementById('submit').addEventListener('click', signUp, false);
+</script>
+<?php require('template/footer.phtml') ?>

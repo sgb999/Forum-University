@@ -1,0 +1,66 @@
+<?php require_once 'template/header.phtml';?>
+<script>
+    var catID = 0;
+    var space = " ";
+    categories();
+    function categories() {
+        const token = "<?php echo $_SESSION['ajaxToken']?>";
+        fetch('Models/getCategories.php?q=' + token.valueOf()).then(function (response) {
+            return response.text();
+        }).then(function (data) {
+            const myArr = JSON.parse(data);
+            myArr.forEach(myFunction);
+        }).catch(function (error) {
+            console.log('Error: ' + error);
+        });
+    }
+    function myFunction(item) {
+        catID = item.id;
+        var node = document.createTextNode(item.name);
+        showTitle(node);
+        node = document.createTextNode(item.description);
+        showMessage(node);
+        node = document.createTextNode(space);
+        spaceOut(node);
+        line();
+    }
+    function showTitle(node) {
+        para = document.createElement('h3');
+        para.appendChild(node);
+        element = document.getElementById("display");
+        var a = document.createElement('a');
+        a.appendChild(para);
+        a.href = "/get_topic.php?cat_id=" + catID;
+        element.appendChild(a);
+
+    }
+    function showMessage(node) {
+        para = document.createElement('tr');
+        para.appendChild(node);
+        element = document.getElementById("display")
+        element.appendChild(para);
+    }
+    function spaceOut(node) {
+        para = document.createElement('p');
+        para.appendChild(node);
+        element = document.getElementById("display")
+        element.appendChild(para);
+    }
+    function line() {
+        para = document.createElement('hr');
+        element = document.getElementById('display');
+        element.appendChild(para);
+    }
+</script>
+<tr>
+<td class="table table-hover">
+<thead>
+<tr><th><h1>Categories</h1></th></tr>
+</thead>
+<tbody>
+<div id="display">
+
+</div>
+</tbody>
+
+<?php require_once 'template/footer.phtml';?>

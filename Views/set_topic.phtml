@@ -1,0 +1,35 @@
+<?php require_once ('template/header.phtml')?>
+    <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
+        <div>
+            <label>Subject:</label>
+            <input type="text" name="topic_subject" value=""
+            <?php if (isset($_POST['topic_subject']))
+            //{echo $_POST['topic_subject'];}
+            ?>
+        </div>
+        <div>
+            <div>
+                <label>Category:</label>
+                    <select name="Category">
+
+                    <?php foreach ($view->MySQL as $categories){
+                        echo '<option>' . $categories->getCatName() . '</option>';
+                    }?>
+
+                    </select>
+            </div>
+                <div>
+                    <label>Message:</label>
+                    <input type="message" name="post_content" value=""
+                    <textarea name="post_content" value=""></textarea>
+                    <?php if (isset($_POST['post_content']))
+                    //{echo $_POST['post_content'];}
+                    ?>
+                </div>
+            </div>
+            <div>
+                <!--<span Class="glyphicon glyphicon-pencil">-->
+                <input type="submit" class="btn btn-primary btn-block" value="submit" name="submit">
+            </div>
+    </form>
+<?php require_once ('template/footer.phtml')?>

@@ -1,0 +1,102 @@
+<?php require_once 'template/header.phtml';?>
+<script>
+    let dateTime = 0;
+    userID = <?php echo $user_id=implode($_GET);?>;
+    const token = "<?php echo $_SESSION['ajaxToken'];?>";
+        posts();
+        function posts() {
+            fetch('Models/getUserPosts.php?q=' + token.valueOf() + "/" + "initial" + "/" + userID).then(function (response) {
+                return response.text();
+            }).then(function (data) {
+                const myArr = JSON.parse(data);
+                if(myArr.length < 9){
+                    deleteLoad();
+                }
+                myArr.forEach(myFunction);
+            }).catch(function (error) {
+                console.log('Error: ' + error);
+            });
+        }
+
+    function deleteLoad(){
+        const button = document.getElementById("Load");
+        button.parentNode.removeChild(button);
+    }
+
+    function LoadMore() {
+        fetch('Models/getUserPosts.php?q=' + token.valueOf() + "/" + "more" + "/" + userID + "/" + dateTime).then(function (response) {
+            return response.text();
+        }).then(function (data) {
+            const myArr = JSON.parse(data);
+            if(myArr.length < 9){
+                deleteLoad();
+            }
+            myArr.forEach(myFunction);
+        }).catch(function (error) {
+            console.log('Error: ' + error);
+        });
+    }
+    function myFunction(item) {
+        let node = document.createTextNode(item.content);
+        showMessage(node)
+        node = document.createTextNode(item.date);
+        dateTime = item.date;
+        showMessage(node)
+    }
+    function showMessage(node) {
+        let para = document.createElement('p');
+        para.appendChild(node);
+        let element = document.getElementById("display")
+        element.appendChild(para);
+    }
+    function load(event) {
+        LoadMore();
+    }
+    <?php
+    if(isset($_SESSION['user_name']))
+    {
+    ?>
+    function message(event) {
+        fetch('Models/connecting.php?q=' + <?php echo $_SESSION['user_id'];?> + "/" + <?php echo $user_id=implode($_GET);?>).then(function (response) {
+            return response.text();
+        }).then(function (data) {
+            console.log(data);
+            const myObj = JSON.parse(data);
+            redirect(myObj.con_id);
+        }).catch(function (error) {
+            console.log('Error: ' + error);
+        });
+    }
+    <?php }?>
+    function redirect(item) {
+        var url= "/message.php?con_id=";
+        window.location = url + item;
+    }
+</script>
+<?php $MySQL = $view->MySQL;?>
+    <h1><?php echo $MySQL;?></h1>
+<p></p>
+<?php
+if(isset($_SESSION['user_name']))
+{
+    if ($_SESSION['user_id'] !== $user_id=implode($_GET)){
+    ?>
+    <button id="message" class="btn btn-primary glyphicon glyphicon-envelope"> Message</button>
+<?php }}?>
+<p></p>
+<hr>
+    <div id="display">
+
+    </div>
+    <button id="Load" class="btn btn-primary btn-block">Load More</button>
+    <script>
+        document.getElementById('Load').addEventListener('click', load, false);
+        <?php
+        if(isset($_SESSION['user_name']))
+        {
+        if ($_SESSION['user_id'] !== $user_id=implode($_GET)){
+        ?>
+        document.getElementById('message').addEventListener('click', message, false);
+        <?php }}?>
+    </script>
+<?php require_once 'template/footer.phtml';?>
